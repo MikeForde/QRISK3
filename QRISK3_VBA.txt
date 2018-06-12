@@ -1,0 +1,244 @@
+Private Function fnQRisk3Female(age As Double, b_AF As Integer, b_atypicalantipsy As Integer, b_corticosteroids As Integer, _
+                                b_migraine As Integer, b_ra As Integer, b_renal As Integer, b_semi As Integer, b_sle As Integer, _
+                                b_treatedhyp As Integer, b_type1 As Integer, b_type2 As Integer, bmi As Double, ethrisk As Integer, _
+                                fh_cvd As Integer, rati As Double, sbp As Double, sbps5 As Double, smoke_cat As Integer, _
+                                surv As Integer, town As Double) As Double
+    Dim survivor As Variant, Iethrisk As Variant, Ismoke As Variant
+    Dim dage As Double, age_1 As Double, age_2 As Double
+    Dim dbmi As Double, bmi_1 As Double, bmi_2 As Double
+    Dim a As Double, score As Double
+
+    survivor = Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.988876402378082, 0, 0, 0, 0, 0)
+
+    ' The conditional arrays
+
+    Iethrisk = Array(0, 0, 0.280403143329954, 0.562989941420754, 0.295900008511165, _
+                    0.0727853798779825, -0.170721355088573, -0.39371043314875, _
+                    -0.326324952835303, -0.171270568832418)
+    Ismoke = Array(0, 0.133868337865463, 0.562008580124385, _
+                    0.667495933775025, 0.849481776448308)
+
+    ' Applying the fractional polynomial transforms
+    ' (which includes scaling)
+
+    dage = age
+    dage = dage / 10
+    age_1 = dage ^ -2
+    age_2 = dage
+    dbmi = bmi
+    dbmi = dbmi / 10
+    bmi_1 = dbmi ^ -2
+    bmi_2 = (dbmi ^ -2) * Log(dbmi)
+
+    ' Centring the continuous variables
+
+    age_1 = age_1 - 0.053274843841791
+    age_2 = age_2 - 4.33250331878662
+    bmi_1 = bmi_1 - 0.154946178197861
+    bmi_2 = bmi_2 - 0.144462317228317
+    rati = rati - 3.47632646560669
+    sbp = sbp - 123.130012512207
+    sbps5 = sbps5 - 9.00253772735596
+    town = town - 0.392308831214905
+
+    ' Start of Sum
+    a = 0
+
+    ' The conditional sums
+
+    a = a + Iethrisk(ethrisk)
+    a = a + Ismoke(smoke_cat)
+
+    ' Sum from continuous values
+
+    a = a + age_1 * -8.13881092477262
+    a = a + age_2 * 0.797333766896991
+    a = a + bmi_1 * 0.292360922754601
+    a = a + bmi_2 * -4.15133002138377
+    a = a + rati * 0.153380358208026
+    a = a + sbp * 0.0131314884071034
+    a = a + sbps5 * 0.00788945410145861
+    a = a + town * 0.0772237905885901
+
+    ' Sum from boolean values
+
+    a = a + b_AF * 1.59233549692697
+    a = a + b_atypicalantipsy * 0.252376420701156
+    a = a + b_corticosteroids * 0.595207253046019
+    a = a + b_migraine * 0.301267260870345
+    a = a + b_ra * 0.213648034351819
+    a = a + b_renal * 0.651945694938458
+    a = a + b_semi * 0.125553080588202
+    a = a + b_sle * 0.758809386542677
+    a = a + b_treatedhyp * 0.50931593683423
+    a = a + b_type1 * 1.72679775105373
+    a = a + b_type2 * 1.06887732446155
+    a = a + fh_cvd * 0.454453190208962
+
+    ' Sum from interaction terms
+    ' Note in VBA while false evaluates to 0, true evaluates to -1 not 1
+    ' To compensate we need to multiply by -1
+    ' For the b_ integers this has already been applied before values passed
+
+    a = a + age_1 * (-1 * (smoke_cat = 1)) * -4.70571617858519
+    a = a + age_1 * (-1 * (smoke_cat = 2)) * -2.74303834035733
+    a = a + age_1 * (-1 * (smoke_cat = 3)) * -0.866080888293922
+    a = a + age_1 * (-1 * (smoke_cat = 4)) * 0.902415623697106
+    a = a + age_1 * b_AF * 19.9380348895466
+    a = a + age_1 * b_corticosteroids * -0.984080452359363
+    a = a + age_1 * b_migraine * 1.7634979587873
+    a = a + age_1 * b_renal * -3.58740477316941
+    a = a + age_1 * b_sle * 19.6903037386383
+    a = a + age_1 * b_treatedhyp * 11.8728097339218
+    a = a + age_1 * b_type1 * -1.24443327143207
+    a = a + age_1 * b_type2 * 6.86523420000096
+    a = a + age_1 * bmi_1 * 23.8026234121417
+    a = a + age_1 * bmi_2 * -71.184947692087
+    a = a + age_1 * fh_cvd * 0.994678079404351
+    a = a + age_1 * sbp * 0.0341318423386155
+    a = a + age_1 * town * -1.03011808020356
+    a = a + age_2 * (-1 * (smoke_cat = 1)) * -0.075589244643193
+    a = a + age_2 * (-1 * (smoke_cat = 2)) * -0.119511928748671
+    a = a + age_2 * (-1 * (smoke_cat = 3)) * -0.103663063975719
+    a = a + age_2 * (-1 * (smoke_cat = 4)) * -0.139918535917184
+    a = a + age_2 * b_AF * -0.0761826510111625
+    a = a + age_2 * b_corticosteroids * -0.120053649467425
+    a = a + age_2 * b_migraine * -0.0655869178986999
+    a = a + age_2 * b_renal * -0.226888730864425
+    a = a + age_2 * b_sle * 0.0773479496790163
+    a = a + age_2 * b_treatedhyp * 0.000968578235881744
+    a = a + age_2 * b_type1 * -0.287240646244889
+    a = a + age_2 * b_type2 * -0.0971122525906955
+    a = a + age_2 * bmi_1 * 0.523699589336644
+    a = a + age_2 * bmi_2 * 0.0457441901223238
+    a = a + age_2 * fh_cvd * -0.076885051698423
+    a = a + age_2 * sbp * -0.00150825014232724
+    a = a + age_2 * town * -0.0315934146749623
+    
+    'MsgBox "a = " & a
+
+    ' Calculate the score itself
+    score = 100 * (1 - (survivor(surv) ^ Exp(a)))
+    fnQRisk3Female = score
+
+
+End Function
+
+Private Function fnQRisk3Male(age As Double, b_AF As Integer, b_atypicalantipsy As Integer, b_corticosteroids As Integer, b_impotence2 As Integer, _
+                                b_migraine As Integer, b_ra As Integer, b_renal As Integer, b_semi As Integer, b_sle As Integer, _
+                                b_treatedhyp As Integer, b_type1 As Integer, b_type2 As Integer, bmi As Double, ethrisk As Integer, _
+                                fh_cvd As Integer, rati As Double, sbp As Double, sbps5 As Double, smoke_cat As Integer, _
+                                surv As Integer, town As Double) As Double
+    Dim survivor As Variant, Iethrisk As Variant, Ismoke As Variant
+    Dim dage As Double, age_1 As Double, age_2 As Double
+    Dim dbmi As Double, bmi_1 As Double, bmi_2 As Double
+    Dim a As Double, score As Double
+
+    survivor = Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.977268040180206, 0, 0, 0, 0, 0)
+
+    ' The conditional arrays
+
+    Iethrisk = Array(0, 0, 0.277192487603083, 0.474463607149313, 0.529617299196894, 0.035100159186299, _
+                    -0.358078996693279, -0.400564852321651, -0.415227928898302, -0.2632134813475)
+    Ismoke = Array(0, 0.19128222863389, 0.552415881926456, 0.638350530275061, 0.78983819881858)
+
+    ' Applying the fractional polynomial transforms
+    ' (which includes scaling)
+
+    dage = age
+    dage = dage / 10
+    age_1 = dage ^ -1
+    age_2 = dage ^ 3
+    dbmi = bmi
+    dbmi = dbmi / 10
+    bmi_2 = (dbmi ^ -2) * Log(dbmi)
+    bmi_1 = dbmi ^ -2
+
+    ' Centring the continuous variables
+
+    age_1 = age_1 - 0.234766781330109
+    age_2 = age_2 - 77.2840805053711
+    bmi_1 = bmi_1 - 0.149176135659218
+    bmi_2 = bmi_2 - 0.141913309693336
+    rati = rati - 4.30099868774414
+    sbp = sbp - 128.571578979492
+    sbps5 = sbps5 - 8.75662136077881
+    town = town - 0.52630490064621
+
+    ' Start of Sum
+    a = 0
+
+    ' The conditional sums
+
+    a = a + Iethrisk(ethrisk)
+    a = a + Ismoke(smoke_cat)
+
+    ' Sum from continuous values
+
+    a = a + age_1 * -17.8397816660056
+    a = a + age_2 * 0.00229648806057655
+    a = a + bmi_1 * 2.45627766605364
+    a = a + bmi_2 * -8.30111223147114
+    a = a + rati * 0.173401968563271
+    a = a + sbp * 0.0129101265425533
+    a = a + sbps5 * 0.0102519142912905
+    a = a + town * 0.0332682012772873
+    
+    ' Sum from boolean values
+
+    a = a + b_AF * 0.882092369280547
+    a = a + b_atypicalantipsy * 0.130468798551735
+    a = a + b_corticosteroids * 0.454853997504455
+    a = a + b_impotence2 * 0.222518590867054
+    a = a + b_migraine * 0.255841780741599
+    a = a + b_ra * 0.209706580139566
+    a = a + b_renal * 0.718532612882744
+    a = a + b_semi * 0.121330398820472
+    a = a + b_sle * 0.440157217445752
+    a = a + b_treatedhyp * 0.516598710826955
+    a = a + b_type1 * 1.23434255216752
+    a = a + b_type2 * 0.859420714309322
+    a = a + fh_cvd * 0.540554690093902
+
+    ' Sum from interaction terms
+
+    a = a + age_1 * (-1 * (smoke_cat = 1)) * -0.210111339335163
+    a = a + age_1 * (-1 * (smoke_cat = 2)) * 0.752686764475032
+    a = a + age_1 * (-1 * (smoke_cat = 3)) * 0.993158875564058
+    a = a + age_1 * (-1 * (smoke_cat = 4)) * 2.13311634143891
+    a = a + age_1 * b_AF * 3.48966755306232
+    a = a + age_1 * b_corticosteroids * 1.17081336534891
+    a = a + age_1 * b_impotence2 * -1.50640098574543
+    a = a + age_1 * b_migraine * 2.34911598714024
+    a = a + age_1 * b_renal * -0.506567163272237
+    a = a + age_1 * b_treatedhyp * 6.51145810985327
+    a = a + age_1 * b_type1 * 5.33798648780065
+    a = a + age_1 * b_type2 * 3.64618174062213
+    a = a + age_1 * bmi_1 * 31.0049529560339
+    a = a + age_1 * bmi_2 * -111.291571843916
+    a = a + age_1 * fh_cvd * 2.78086285085319
+    a = a + age_1 * sbp * 0.0188585244698659
+    a = a + age_1 * town * -0.100755487006373
+    a = a + age_2 * (-1 * (smoke_cat = 1)) * -0.000498548702753261
+    a = a + age_2 * (-1 * (smoke_cat = 2)) * -0.000798756333173854
+    a = a + age_2 * (-1 * (smoke_cat = 3)) * -0.000837061842662513
+    a = a + age_2 * (-1 * (smoke_cat = 4)) * -0.000784003191556373
+    a = a + age_2 * b_AF * -0.00034995608340636
+    a = a + age_2 * b_corticosteroids * -0.000249604509529717
+    a = a + age_2 * b_impotence2 * -0.00110582184412274
+    a = a + age_2 * b_migraine * 0.000198964460414786
+    a = a + age_2 * b_renal * -0.00183259301664988
+    a = a + age_2 * b_treatedhyp * 0.00063838053104165
+    a = a + age_2 * b_type1 * 0.00064097808087529
+    a = a + age_2 * b_type2 * -0.000246956955888683
+    a = a + age_2 * bmi_1 * 0.0050380102356322
+    a = a + age_2 * bmi_2 * -0.0130744830025243
+    a = a + age_2 * fh_cvd * -0.00024791809907396
+    a = a + age_2 * sbp * -1.27187419158846E-05
+    a = a + age_2 * town * -9.32996423232729E-05
+
+    ' Calculate the score itself
+    score = 100 * (1 - (survivor(surv) ^ Exp(a)))
+    fnQRisk3Male = score
+    
+End Function
